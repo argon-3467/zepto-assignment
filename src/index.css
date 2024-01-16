@@ -1,0 +1,32 @@
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  color-scheme: light dark;
+  color: white;
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:focus,
+:focus-visible {
+  outline: 2px solid blue;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: black;
+    background-color: #ffffff;
+  }
+}
