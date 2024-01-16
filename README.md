@@ -11,6 +11,7 @@ This is a React component that provides a chip input functionality.
 - The input field refocuses after an item is added or removed.
 - If you press 'Backspace' while the input field is empty, the last chip is focused.
 - If you press 'Backspace' while a chip is focused, the chip is removed.
+- **New**: You can now navigate through the list of items using the 'Tab' key and select an item by pressing 'Enter'.
 
 ## Dependencies
 

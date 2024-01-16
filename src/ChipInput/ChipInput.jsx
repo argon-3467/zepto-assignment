@@ -6,14 +6,18 @@ function ChipInput({ items }) {
   const [inputValue, setInputValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef(null);
+  const inputContainerRef = useRef(null);
   let blurTimeoutId = null;
 
   // add item to the selectedItems and refocus the input element
-  const handleItemClick = (itemToAdd) => {
-    setSelectedItems([...selectedItems, itemToAdd]);
-    setInputValue('');
-    inputRef.current?.focus();
-  };
+  const handleItemAdd = useCallback(
+    (itemToAdd) => {
+      setSelectedItems([...selectedItems, itemToAdd]);
+      setInputValue('');
+      inputRef.current?.focus();
+    },
+    [selectedItems]
+  ); // Add selectedItems as a dependency
 
   // remove item from the selectedItems and refocus the input element
   // Wrap handleItemRemove in useCallback to avoid running useEffect every time
@@ -66,6 +70,37 @@ function ChipInput({ items }) {
     };
   }, [selectedItems, inputRef, handleItemRemove]);
 
+  useEffect(() => {
+    if (isOpen) {
+      const items = document.querySelectorAll('.item');
+      const inputContainerElement = inputContainerRef.current;
+
+      items.forEach((item) => {
+        item.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const itemId = parseInt(item.getAttribute('data-id'));
+            const itemToAdd = filteredItems.find((item) => item.id === itemId);
+            handleItemAdd(itemToAdd);
+          }
+        });
+      });
+      inputContainerElement.addEventListener('focusout', (e) => {
+        if (!inputContainerElement.contains(e.relatedTarget)) {
+          setIsOpen(false);
+        }
+      });
+
+      return () => {
+        if (isOpen) {
+          items.forEach((item) => {
+            removeEventListener('keydown', item);
+          });
+          removeEventListener('focusout', inputContainerElement);
+        }
+      };
+    }
+  }, [isOpen, filteredItems, handleItemAdd]);
+
   return (
     <div className="chip-container">
       {selectedItems.map((item) => (
@@ -77,7 +112,7 @@ function ChipInput({ items }) {
           </div>
         </div>
       ))}
-      <div className="chip-input">
+      <div ref={inputContainerRef} className="chip-input">
         <input
           placeholder={
             filteredItems.length > 0 ? 'search' : 'all items selected'
@@ -92,11 +127,6 @@ function ChipInput({ items }) {
             clearTimeout(blurTimeoutId);
             setIsOpen(true);
           }}
-          onBlur={() => {
-            blurTimeoutId = setTimeout(() => {
-              setIsOpen(false);
-            }, 200);
-          }}
         />
         {isOpen && (
           <div className="item-list">
@@ -104,7 +134,9 @@ function ChipInput({ items }) {
               <div
                 className="item"
                 key={item.id}
-                onClick={() => handleItemClick(item)}
+                tabIndex="0"
+                data-id={item.id}
+                onClick={() => handleItemAdd(item)}
               >
                 <img src={item.img.imgUrl} alt={item.img.imgAlt} />
                 <p style={{ whiteSpace: 'nowrap' }}>{item.name}</p>
